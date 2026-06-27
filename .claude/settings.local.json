@@ -9,7 +9,25 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git reset *)",
-      "Bash(git update-ref *)"
+      "Bash(git update-ref *)",
+      "Bash(nginx -v)",
+      "Bash(tasklist)",
+      "Bash(ls -la /c/nginx*)",
+      "Bash(ls -la /d/nginx*)",
+      "Read(//e/itheima_web_project/tlias-web-management/**)",
+      "Bash(find /c -maxdepth 3 -name \"nginx.exe\" -type f)",
+      "Bash(where nginx *)",
+      "Read(//c/Users/HP/AppData/Local/**)",
+      "Read(//c/Users/HP/tools/**)",
+      "Read(//c//**)",
+      "Bash(tasklist /v /fo csv)",
+      "Bash(sort -t',' -k2)",
+      "Bash(netstat -ano)",
+      "Bash(curl *)",
+      "Bash(powershell *)",
+      "Bash(C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\BNZ.6a3f579776c100\\\\nginx-1.22.0-tlias\\\\nginx.exe *)",
+      "Bash(taskkill *)",
+      "Bash(mvn spring-boot:run -q)"
     ]
   }
 }

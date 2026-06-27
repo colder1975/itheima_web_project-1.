@@ -22,7 +22,8 @@ src/main/java/com/itheima/
 ├── TliasWebManagementApplication.java   # 启动类
 ├── controller/
 │   ├── EmpController.java               # 员工接口 /emps
-│   └── DeptController.java              # 部门接口 /depts
+│   ├── DeptController.java              # 部门接口 /depts
+│   └── UploadController.java            # 文件上传接口 /upload
 ├── service/
 │   ├── EmpService.java                  # 员工服务接口
 │   ├── DeptService.java                 # 部门服务接口
@@ -37,6 +38,9 @@ src/main/java/com/itheima/
     ├── Dept.java                        # 部门实体
     ├── Result.java                      # 统一响应结果 {code, msg, data}
     └── PageBean.java                    # 分页结果 {total, rows}
+
+src/main/java/com/itheima/utils/
+└── AliOSSUtils.java                     # 阿里云OSS文件上传工具
 
 src/main/resources/
 ├── application.yml                      # 主配置（数据源、MyBatis）
@@ -124,6 +128,15 @@ mvn clean package -DskipTests
 - 功能分支：`feature/<功能名>`
 - 修复分支：`fix/<问题描述>`
 - 提交信息使用中文，格式：`类型: 描述`（如 `feat: 新增员工批量导入`, `fix: 修复分页越界`）
+
+## 阿里云 OSS 文件上传
+
+- Bucket 名称：`talis-web10`
+- 配置项：`aliyun.oss.endpoint`、`access-key-id`、`access-key-secret`、`bucket-name`
+- 上传接口：`POST /upload`，参数名 `file`，返回 OSS 公网 URL
+- 文件命名：`images/{UUID}{扩展名}`，避免文件名冲突
+- 文件大小限制：单文件 10MB，单次请求 100MB
+- SDK：`com.aliyun.oss:aliyun-sdk-oss:3.17.4`
 
 ## AI 工具协作原则
 

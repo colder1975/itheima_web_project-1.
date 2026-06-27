@@ -9,6 +9,11 @@ spring:
   sql:
     init:
       mode: never           # 不自动执行 schema.sql（数据已手动导入）
+  # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB         # 单个文件最大大小
+      max-request-size: 100MB     # 单次请求最大大小
 
 # MyBatis配置
 mybatis:
@@ -19,3 +24,11 @@ mybatis:
   configuration:
     map-underscore-to-camel-case: true  # 驼峰映射，如 user_name -> userName
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印SQL日志
+
+# 阿里云OSS配置
+aliyun:
+  oss:
+    endpoint: https://oss-cn-hangzhou.aliyuncs.com    # 改成你的Bucket所在地域Endpoint
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}               # 改成你的AccessKey ID
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}          # 改成你的AccessKey Secret
+    bucket-name: talis-web10                           # Bucket名称
