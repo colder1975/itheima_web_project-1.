@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git rev-parse *)",
+      "Bash(ls -la .git/hooks/)",
+      "Bash(git init *)",
+      "Bash(cat)",
+      "Bash(chmod +x \"E:\\\\itheima_web_project\\\\tlias-web-management\\\\tlias-web-management\\\\.git\\\\hooks\\\\pre-commit\")",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git reset *)",
+      "Bash(git update-ref *)"
+    ]
+  }
+}

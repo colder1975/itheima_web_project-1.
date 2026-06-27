@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tlias 智能学习辅助系统</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Microsoft YaHei", sans-serif; background: #f0f2f5; }
+        .header {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+            color: #fff; padding: 16px 32px; display: flex;
+            align-items: center; justify-content: space-between;
+        }
+        .header h1 { font-size: 22px; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .tabs { display: flex; gap: 8px; margin-bottom: 20px; }
+        .tab {
+            padding: 10px 24px; border: none; border-radius: 6px 6px 0 0;
+            cursor: pointer; font-size: 15px; background: #e8eaed; color: #5f6368;
+        }
+        .tab.active { background: #fff; color: #1a73e8; font-weight: bold; }
+        .panel { background: #fff; border-radius: 0 8px 8px 8px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .toolbar { display: flex; gap: 12px; margin-bottom: 16px; align-items: center; flex-wrap: wrap; }
+        .search-input {
+            padding: 8px 12px; border: 1px solid #dadce0; border-radius: 4px;
+            font-size: 14px; outline: none; width: 200px;
+        }
+        .search-input:focus { border-color: #1a73e8; }
+        .btn {
+            padding: 8px 20px; border: none; border-radius: 4px;
+            cursor: pointer; font-size: 14px; transition: 0.2s;
+        }
+        .btn-primary { background: #1a73e8; color: #fff; }
+        .btn-primary:hover { background: #1557b0; }
+        .btn-danger { background: #ea4335; color: #fff; }
+        .btn-danger:hover { background: #c5221f; }
+        .btn-success { background: #34a853; color: #fff; }
+        .btn-success:hover { background: #2d8f47; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid #e8eaed; }
+        th { background: #f8f9fa; color: #5f6368; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .btn-info-sm { background: #e8f0fe; color: #1967d2; padding: 4px 12px; font-size: 12px; border: none; border-radius: 4px; cursor: pointer; }
+        .btn-info-sm:hover { background: #d2e3fc; }
+        .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+        .detail-grid .dl-item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
+        .detail-grid .dl-label { font-size: 12px; color: #5f6368; }
+        .detail-grid .dl-value { font-size: 14px; margin-top: 2px; }
+        .detail-subtitle { font-size: 14px; font-weight: 600; color: #1a73e8; margin: 16px 0 8px; padding-top: 12px; border-top: 2px solid #e8eaed; }
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 100; justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: #fff; border-radius: 8px; padding: 24px; width: 420px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+        .modal h3 { margin-bottom: 16px; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 4px; color: #5f6368; font-size: 13px; }
+        .form-group input, .form-group select {
+            width: 100%; padding: 8px 12px; border: 1px solid #dadce0;
+            border-radius: 4px; font-size: 14px;
+        }
+        .form-group input:focus, .form-group select:focus {
+            outline: none; border-color: #1a73e8;
+        }
+        .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+        .toast {
+            position: fixed; top: 20px; right: 20px; padding: 12px 24px;
+            border-radius: 6px; color: #fff; font-size: 14px; z-index: 200;
+            animation: slideIn 0.3s ease;
+        }
+        .toast.success { background: #34a853; }
+        .toast.error { background: #ea4335; }
+        @keyframes slideIn { from { transform: translateX(100px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .empty { text-align: center; padding: 40px; color: #9aa0a6; }
+        /* 分页 */
+        .pager { display: flex; align-items: center; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; gap: 8px; }
+        .pager .pager-info { font-size: 13px; color: #5f6368; }
+        .pager .pager-btns { display: flex; gap: 6px; align-items: center; }
+        .pager .pager-btns button {
+            padding: 6px 14px; border: 1px solid #dadce0; border-radius: 4px;
+            background: #fff; cursor: pointer; font-size: 13px; transition: 0.15s;
+        }
+        .pager .pager-btns button:hover:not(:disabled) { background: #e8f0fe; border-color: #1a73e8; color: #1a73e8; }
+        .pager .pager-btns button:disabled { opacity: 0.4; cursor: default; }
+        .pager .pager-btns .page-num { font-weight: 600; color: #1a73e8; padding: 0 4px; }
+        .pager select { padding: 6px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>📚 Tlias 智能学习辅助系统</h1>
+    <span style="font-size:13px;opacity:0.8">Spring Boot + Nginx</span>
+</div>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab active" onclick="switchTab('dept')">🏢 部门管理</button>
+        <button class="tab" onclick="switchTab('emp')">👥 员工管理</button>
+    </div>
+
+    <!-- 部门面板 -->
+    <div class="panel" id="panel-dept">
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openDeptModal()">+ 新增部门</button>
+            <button class="btn btn-danger" onclick="batchDeleteDept()" style="display:none" id="dept-batch-btn">🗑 批量删除</button>
+            <input type="text" class="search-input" placeholder="🔍 部门名称 / ID..." oninput="deptSearch(this.value)">
+            <span style="flex:1"></span>
+            <span id="dept-count" style="color:#5f6368;line-height:36px"></span>
+        </div>
+        <table>
+            <thead>
+                <tr><th style="width:36px"><input type="checkbox" id="dept-check-all" onchange="toggleAllDept()"></th><th>ID</th><th>部门名称</th><th>创建时间</th><th>更新时间</th><th>操作</th></tr>
+            </thead>
+            <tbody id="dept-tbody"></tbody>
+        </table>
+        <div class="pager" id="dept-pager"></div>
+    </div>
+
+    <!-- 员工面板 -->
+    <div class="panel" id="panel-emp" style="display:none">
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="openEmpModal()">+ 新增员工</button>
+            <button class="btn btn-danger" onclick="batchDeleteEmp()" style="display:none" id="emp-batch-btn">🗑 批量删除</button>
+            <select id="emp-dept-filter" onchange="empSearch()" style="padding:8px 12px;border:1px solid #dadce0;border-radius:4px;">
+                <option value="">全部部门</option>
+            </select>
+            <input type="text" class="search-input" id="emp-search" placeholder="🔍 员工姓名 / ID..." oninput="empSearch()">
+            <input type="date" id="emp-start-date" onchange="empSearch()" style="padding:7px 10px;border:1px solid #dadce0;border-radius:4px;font-size:13px;" title="入职起始日期">
+            <span style="font-size:13px;color:#5f6368">至</span>
+            <input type="date" id="emp-end-date" onchange="empSearch()" style="padding:7px 10px;border:1px solid #dadce0;border-radius:4px;font-size:13px;" title="入职截止日期">
+            <span style="flex:1"></span>
+            <span id="emp-count" style="color:#5f6368;line-height:36px"></span>
+        </div>
+        <table>
+            <thead>
+                <tr><th style="width:36px"><input type="checkbox" id="emp-check-all" onchange="toggleAllEmp()"></th><th>ID</th><th>姓名</th><th>性别</th><th>职位</th><th>入职日期</th><th>部门ID</th><th>操作</th></tr>
+            </thead>
+            <tbody id="emp-tbody"></tbody>
+        </table>
+        <div class="pager" id="emp-pager"></div>
+    </div>
+</div>
+
+<!-- 部门弹窗 -->
+<div class="modal-overlay" id="dept-modal-overlay">
+    <div class="modal">
+        <h3 id="dept-modal-title">新增部门</h3>
+        <div class="form-group">
+            <label>部门名称</label>
+            <input type="text" id="dept-name" placeholder="请输入部门名称">
+        </div>
+        <input type="hidden" id="dept-id">
+        <div class="modal-actions">
+            <button class="btn" onclick="closeDeptModal()" style="background:#e8eaed;">取消</button>
+            <button class="btn btn-success" onclick="saveDept()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 员工弹窗 -->
+<div class="modal-overlay" id="emp-modal-overlay">
+    <div class="modal">
+        <h3 id="emp-modal-title">新增员工</h3>
+        <div class="form-group"><label>姓名 *</label><input type="text" id="emp-name" placeholder="请输入姓名"></div>
+        <div class="form-group"><label>用户名 *</label><input type="text" id="emp-username" placeholder="请输入用户名"></div>
+        <div class="form-group"><label>密码</label><input type="text" id="emp-password" placeholder="请输入密码"></div>
+        <div class="form-group"><label>性别</label>
+            <select id="emp-gender"><option value="1">男</option><option value="0">女</option></select>
+        </div>
+        <div class="form-group"><label>职位</label>
+            <select id="emp-job">
+                <option value="1">班主任</option><option value="2">讲师</option>
+                <option value="3">学工主管</option><option value="4">教研主管</option>
+                <option value="5">咨询师</option>
+            </select>
+        </div>
+        <div class="form-group"><label>入职日期</label><input type="date" id="emp-entrydate"></div>
+        <div class="form-group"><label>部门</label><select id="emp-dept"></select></div>
+        <div class="form-group"><label>头像URL</label><input type="text" id="emp-image" placeholder="可留空，如 https://xxx.com/avatar.jpg"></div>
+        <input type="hidden" id="emp-id">
+        <div class="modal-actions">
+            <button class="btn" onclick="closeEmpModal()" style="background:#e8eaed;">取消</button>
+            <button class="btn btn-success" onclick="saveEmp()">保存</button>
+        </div>
+    </div>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-overlay" id="detail-modal-overlay">
+    <div class="modal" style="width:520px;max-height:80vh;overflow-y:auto;">
+        <h3 id="detail-modal-title">📋 详情</h3>
+        <div id="detail-content"></div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeDetailModal()" style="background:#e8eaed;">关闭</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = '/api';
+    const JOB_NAMES = {1:'班主任',2:'讲师',3:'学工主管',4:'教研主管',5:'咨询师'};
+
+    // ====== 分页状态 ======
+    let deptPage = 1, deptPageSize = 5, deptKeyword = '';
+    let empPage = 1, empPageSize = 5, empDeptId = '', empKeyword = '';
+
+    function toast(msg, type) {
+        const el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 2000);
+    }
+
+    async function get(url) {
+        const res = await fetch(API + url);
+        const json = await res.json();
+        if (json.code === 1) return json.data;
+        throw new Error(json.msg);
+    }
+
+    async function post(url, data) {
+        const res = await fetch(API + url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        return await res.json();
+    }
+
+    async function put(url, data) {
+        const res = await fetch(API + url, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+        return await res.json();
+    }
+
+    async function del(url) {
+        const res = await fetch(API + url, { method: 'DELETE' });
+        return await res.json();
+    }
+
+    // ====== 标签切换 ======
+    function switchTab(tab) {
+        document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === (tab === 'dept' ? 0 : 1)));
+        document.getElementById('panel-dept').style.display = tab === 'dept' ? 'block' : 'none';
+        document.getElementById('panel-emp').style.display = tab === 'emp' ? 'block' : 'none';
+        if (tab === 'dept') loadDepts();
+        else { loadDeptFilter(); loadEmps(); }
+    }
+
+    // ====== 分页控件渲染 ======
+    function renderPager(id, page, pageSize, total) {
+        const totalPages = Math.ceil(total / pageSize) || 1;
+        const from = total ? (page - 1) * pageSize + 1 : 0;
+        const to = Math.min(page * pageSize, total);
+        document.getElementById(id).innerHTML = `
+            <div class="pager-info">共 <b>${total}</b> 条，显示第 ${from}-${to} 条</div>
+            <div class="pager-btns">
+                <button onclick="${id === 'dept-pager' ? 'deptGo(1)' : 'empGo(1)'}" ${page <= 1 ? 'disabled' : ''}>首页</button>
+                <button onclick="${id === 'dept-pager' ? 'deptGo(' + (page - 1) + ')' : 'empGo(' + (page - 1) + ')'}" ${page <= 1 ? 'disabled' : ''}>上一页</button>
+                <span class="page-num">${page} / ${totalPages}</span>
+                <button onclick="${id === 'dept-pager' ? 'deptGo(' + (page + 1) + ')' : 'empGo(' + (page + 1) + ')'}" ${page >= totalPages ? 'disabled' : ''}>下一页</button>
+                <button onclick="${id === 'dept-pager' ? 'deptGo(' + totalPages + ')' : 'empGo(' + totalPages + ')'}" ${page >= totalPages ? 'disabled' : ''}>末页</button>
+                <select onchange="${id === 'dept-pager' ? 'deptSize(this.value)' : 'empSize(this.value)'}">
+                    ${[5,10,20].map(s => `<option value="${s}" ${s === pageSize ? 'selected' : ''}>${s}条/页</option>`).join('')}
+                </select>
+            </div>`;
+    }
+
+    // ====== 部门分页操作 ======
+    function deptGo(p) { deptPage = p; loadDepts(); }
+    function deptSize(s) { deptPageSize = +s; deptPage = 1; loadDepts(); }
+    function deptSearch(kw) { deptKeyword = kw; deptPage = 1; loadDepts(); }
+
+    async function loadDepts() {
+        try {
+            let url = `/depts?page=${deptPage}&pageSize=${deptPageSize}`;
+            if (deptKeyword) url += '&keyword=' + encodeURIComponent(deptKeyword);
+            const pb = await get(url);
+            const depts = pb.rows;
+            const tbody = document.getElementById('dept-tbody');
+            document.getElementById('dept-count').textContent = '共 ' + pb.total + ' 个部门';
+            if (!depts.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">暂无数据</td></tr>'; }
+            else {
+                tbody.innerHTML = depts.map(d => `
+                    <tr>
+                        <td><input type="checkbox" class="dept-cb" value="${d.id}" onchange="onDeptCbChange()"></td>
+                        <td>${d.id}</td><td>${d.name}</td>
+                        <td>${(d.createTime||'').replace('T',' ')}</td><td>${(d.updateTime||'').replace('T',' ')}</td>
+                        <td>
+                            <button class="btn-info-sm" onclick="viewDept(${d.id})">查看</button>
+                            <button class="btn btn-primary" style="padding:4px 12px;font-size:12px" onclick="editDept(${d.id},'${d.name}')">编辑</button>
+                            <button class="btn btn-danger" style="padding:4px 12px;font-size:12px" onclick="deleteDept(${d.id})">删除</button>
+                        </td>
+                    </tr>`).join('');
+                document.getElementById('dept-check-all').checked = false;
+                onDeptCbChange();
+            }
+            renderPager('dept-pager', deptPage, deptPageSize, pb.total);
+        } catch (e) { toast('加载部门失败: ' + e.message, 'error'); }
+    }
+
+    // ====== 员工分页操作 ======
+    function empGo(p) { empPage = p; loadEmps(); }
+    function empSize(s) { empPageSize = +s; empPage = 1; loadEmps(); }
+    function empSearch() {
+        empKeyword = document.getElementById('emp-search').value.trim();
+        empDeptId = document.getElementById('emp-dept-filter').value;
+        empPage = 1; loadEmps();
+    }
+
+    async function loadEmps() {
+        try {
+            let url = `/emps?page=${empPage}&pageSize=${empPageSize}`;
+            if (empDeptId) url += '&deptId=' + empDeptId;
+            if (empKeyword) url += '&keyword=' + encodeURIComponent(empKeyword);
+            const sd = document.getElementById('emp-start-date').value;
+            const ed = document.getElementById('emp-end-date').value;
+            if (sd) url += '&startDate=' + sd;
+            if (ed) url += '&endDate=' + ed;
+            const pb = await get(url);
+            const emps = pb.rows;
+            const tbody = document.getElementById('emp-tbody');
+            document.getElementById('emp-count').textContent = '共 ' + pb.total + ' 名员工';
+            if (!emps.length) { tbody.innerHTML = '<tr><td colspan="7" class="empty">暂无数据</td></tr>'; }
+            else {
+                tbody.innerHTML = emps.map(e => `
+                    <tr>
+                        <td><input type="checkbox" class="emp-cb" value="${e.id}" onchange="onEmpCbChange()"></td>
+                        <td>${e.id}</td><td>${e.name}</td>
+                        <td>${e.gender === 1 ? '男' : '女'}</td>
+                        <td>${JOB_NAMES[e.job] || '未知'}</td>
+                        <td>${e.entrydate || ''}</td><td>${e.deptId}</td>
+                        <td>
+                            <button class="btn-info-sm" onclick="viewEmp(${e.id})">查看</button>
+                            <button class="btn btn-primary" style="padding:4px 12px;font-size:12px" onclick="editEmp(${e.id})">编辑</button>
+                            <button class="btn btn-danger" style="padding:4px 12px;font-size:12px" onclick="deleteEmp(${e.id})">删除</button>
+                        </td>
+                    </tr>`).join('');
+                document.getElementById('emp-check-all').checked = false;
+                onEmpCbChange();
+            }
+            renderPager('emp-pager', empPage, empPageSize, pb.total);
+        } catch (e) { toast('加载员工失败: ' + e.message, 'error'); }
+    }
+
+    // ====== 部门详情 ======
+    async function viewDept(id) {
+        try {
+            const dept = await get('/depts/' + id);
+            const emps = await get('/emps?page=1&pageSize=100&deptId=' + id);
+            document.getElementById('detail-modal-title').textContent = '🏢 ' + dept.name + ' 详情';
+            document.getElementById('detail-content').innerHTML = `
+                <div class="detail-grid">
+                    <div class="dl-item"><div class="dl-label">部门ID</div><div class="dl-value"><b>#${dept.id}</b></div></div>
+                    <div class="dl-item"><div class="dl-label">部门名称</div><div class="dl-value"><b>${dept.name}</b></div></div>
+                    <div class="dl-item"><div class="dl-label">创建时间</div><div class="dl-value">${(dept.createTime||'').replace('T',' ')}</div></div>
+                    <div class="dl-item"><div class="dl-label">更新时间</div><div class="dl-value">${(dept.updateTime||'').replace('T',' ')}</div></div>
+                </div>
+                <div class="detail-subtitle">👥 该部门员工（${emps.total}人）</div>
+                ${emps.rows.length ? `
+                <table style="margin-top:8px"><thead><tr><th>ID</th><th>姓名</th><th>职位</th><th>入职日期</th></tr></thead>
+                <tbody>${emps.rows.map(e => `<tr><td>#${e.id}</td><td>${e.name}</td><td>${JOB_NAMES[e.job]||'未知'}</td><td>${e.entrydate||'-'}</td></tr>`).join('')}</tbody></table>
+                ` : '<p style="color:#9aa0a6;text-align:center;padding:16px">暂无员工</p>'}
+            `;
+            document.getElementById('detail-modal-overlay').classList.add('show');
+        } catch (e) { toast('加载详情失败: ' + e.message, 'error'); }
+    }
+
+    function closeDetailModal() {
+        document.getElementById('detail-modal-overlay').classList.remove('show');
+    }
+
+    // ====== 员工详情 ======
+    async function viewEmp(id) {
+        try {
+            const emp = await get('/emps/' + id);
+            document.getElementById('detail-modal-title').textContent = '👤 ' + emp.name + ' 详情';
+            document.getElementById('detail-content').innerHTML = `
+                <div class="detail-grid">
+                    <div class="dl-item"><div class="dl-label">员工ID</div><div class="dl-value"><b>#${emp.id}</b></div></div>
+                    <div class="dl-item"><div class="dl-label">姓名</div><div class="dl-value"><b>${emp.name}</b></div></div>
+                    <div class="dl-item"><div class="dl-label">用户名</div><div class="dl-value">${emp.username}</div></div>
+                    <div class="dl-item"><div class="dl-label">性别</div><div class="dl-value">${emp.gender===1?'男':'女'}</div></div>
+                    <div class="dl-item"><div class="dl-label">职位</div><div class="dl-value">${JOB_NAMES[emp.job]||'未知'}</div></div>
+                    <div class="dl-item"><div class="dl-label">部门ID</div><div class="dl-value">${emp.deptId}</div></div>
+                    <div class="dl-item"><div class="dl-label">入职日期</div><div class="dl-value">${emp.entrydate||'-'}</div></div>
+                    <div class="dl-item"><div class="dl-label">头像</div><div class="dl-value">${emp.image||'-'}</div></div>
+                    <div class="dl-item"><div class="dl-label">创建时间</div><div class="dl-value">${(emp.createTime||'').replace('T',' ')}</div></div>
+                    <div class="dl-item"><div class="dl-label">更新时间</div><div class="dl-value">${(emp.updateTime||'').replace('T',' ')}</div></div>
+                </div>
+            `;
+            document.getElementById('detail-modal-overlay').classList.add('show');
+        } catch (e) { toast('加载详情失败: ' + e.message, 'error'); }
+    }
+
+    // ====== 部门 CRUD ======
+    function openDeptModal() {
+        document.getElementById('dept-modal-title').textContent = '新增部门';
+        document.getElementById('dept-id').value = '';
+        document.getElementById('dept-name').value = '';
+        document.getElementById('dept-modal-overlay').classList.add('show');
+    }
+
+    function editDept(id, name) {
+        document.getElementById('dept-modal-title').textContent = '编辑部门';
+        document.getElementById('dept-id').value = id;
+        document.getElementById('dept-name').value = name;
+        document.getElementById('dept-modal-overlay').classList.add('show');
+    }
+
+    function closeDeptModal() { document.getElementById('dept-modal-overlay').classList.remove('show'); }
+
+    async function saveDept() {
+        const id = document.getElementById('dept-id').value;
+        const name = document.getElementById('dept-name').value.trim();
+        if (!name) { toast('请输入部门名称', 'error'); return; }
+        try {
+            if (id) { await put('/depts', { id: +id, name }); toast('更新成功', 'success'); }
+            else { await post('/depts', { name }); toast('新增成功', 'success'); }
+            closeDeptModal(); loadDepts(); loadDeptFilter();
+        } catch (e) { toast('操作失败: ' + e.message, 'error'); }
+    }
+
+    async function deleteDept(id) {
+        if (!confirm('确定要删除该部门吗？')) return;
+        try { await del('/depts/' + id); toast('删除成功', 'success'); loadDepts(); loadDeptFilter(); }
+        catch (e) { toast('删除失败: ' + e.message, 'error'); }
+    }
+
+    // ====== 部门批量删除 ======
+    function onDeptCbChange() {
+        const cbs = document.querySelectorAll('.dept-cb:checked');
+        const checked = cbs.length;
+        document.getElementById('dept-batch-btn').style.display = checked > 0 ? 'inline-flex' : 'none';
+        document.getElementById('dept-batch-btn').textContent = '🗑 批量删除(' + checked + ')';
+    }
+    function toggleAllDept() {
+        const all = document.getElementById('dept-check-all').checked;
+        document.querySelectorAll('.dept-cb').forEach(cb => cb.checked = all);
+        onDeptCbChange();
+    }
+    async function batchDeleteDept() {
+        const ids = Array.from(document.querySelectorAll('.dept-cb:checked')).map(cb => +cb.value);
+        if (!ids.length) return;
+        if (!confirm('确定删除选中的 ' + ids.length + ' 个部门吗？')) return;
+        try { await fetch(API + '/depts/batch', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ids) }); toast('删除成功', 'success'); loadDepts(); loadDeptFilter(); }
+        catch (e) { toast('批量删除失败', 'error'); }
+    }
+
+    // ====== 员工 CRUD ======
+    function openEmpModal() {
+        document.getElementById('emp-modal-title').textContent = '新增员工';
+        document.getElementById('emp-id').value = '';
+        ['emp-name','emp-username','emp-password','emp-image'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('emp-entrydate').value = '';
+        document.getElementById('emp-modal-overlay').classList.add('show');
+        loadDeptFilter();
+    }
+
+    async function editEmp(id) {
+        try {
+            const emp = await get('/emps/' + id);
+            document.getElementById('emp-modal-title').textContent = '编辑员工';
+            document.getElementById('emp-id').value = emp.id;
+            document.getElementById('emp-name').value = emp.name;
+            document.getElementById('emp-username').value = emp.username;
+            document.getElementById('emp-password').value = emp.password || '';
+            document.getElementById('emp-gender').value = emp.gender;
+            document.getElementById('emp-job').value = emp.job;
+            document.getElementById('emp-entrydate').value = emp.entrydate || '';
+            document.getElementById('emp-dept').value = emp.deptId;
+            document.getElementById('emp-image').value = emp.image || '';
+            document.getElementById('emp-modal-overlay').classList.add('show');
+            await loadDeptFilter();
+        } catch (e) { toast('加载员工信息失败', 'error'); }
+    }
+
+    function closeEmpModal() { document.getElementById('emp-modal-overlay').classList.remove('show'); }
+
+    async function saveEmp() {
+        const id = document.getElementById('emp-id').value;
+        const data = {
+            name: document.getElementById('emp-name').value.trim(),
+            username: document.getElementById('emp-username').value.trim(),
+            password: document.getElementById('emp-password').value.trim() || null,
+            gender: +document.getElementById('emp-gender').value,
+            job: +document.getElementById('emp-job').value,
+            entrydate: document.getElementById('emp-entrydate').value,
+            deptId: +document.getElementById('emp-dept').value,
+            image: document.getElementById('emp-image').value.trim() || null
+        };
+        if (!data.name || !data.username) { toast('请填写姓名和用户名', 'error'); return; }
+        try {
+            if (id) { data.id = +id; await put('/emps', data); toast('更新成功', 'success'); }
+            else { await post('/emps', data); toast('新增成功', 'success'); }
+            closeEmpModal(); loadEmps();
+        } catch (e) { toast('操作失败: ' + e.message, 'error'); }
+    }
+
+    async function deleteEmp(id) {
+        if (!confirm('确定要删除该员工吗？')) return;
+        try { await del('/emps/' + id); toast('删除成功', 'success'); loadEmps(); }
+        catch (e) { toast('删除失败: ' + e.message, 'error'); }
+    }
+
+    // ====== 员工批量删除 ======
+    function onEmpCbChange() {
+        const cbs = document.querySelectorAll('.emp-cb:checked');
+        const checked = cbs.length;
+        document.getElementById('emp-batch-btn').style.display = checked > 0 ? 'inline-flex' : 'none';
+        document.getElementById('emp-batch-btn').textContent = '🗑 批量删除(' + checked + ')';
+    }
+    function toggleAllEmp() {
+        const all = document.getElementById('emp-check-all').checked;
+        document.querySelectorAll('.emp-cb').forEach(cb => cb.checked = all);
+        onEmpCbChange();
+    }
+    async function batchDeleteEmp() {
+        const ids = Array.from(document.querySelectorAll('.emp-cb:checked')).map(cb => +cb.value);
+        if (!ids.length) return;
+        if (!confirm('确定删除选中的 ' + ids.length + ' 名员工吗？')) return;
+        try { await fetch(API + '/emps/batch', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ids) }); toast('删除成功', 'success'); loadEmps(); }
+        catch (e) { toast('批量删除失败', 'error'); }
+    }
+
+    // ====== 部门下拉加载 ======
+    async function loadDeptFilter() {
+        try {
+            const depts = await get('/depts?page=1&pageSize=100');
+            const sel = document.getElementById('emp-dept-filter');
+            sel.innerHTML = '<option value="">全部部门</option>' + depts.rows.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+            const empDept = document.getElementById('emp-dept');
+            if (empDept) empDept.innerHTML = depts.rows.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+        } catch (e) {}
+    }
+
+    // ====== 启动 ======
+    loadDepts();
+</script>
+</body>
+</html>

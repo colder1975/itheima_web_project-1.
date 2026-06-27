@@ -1,0 +1,21 @@
+# 数据源配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/tlias?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai
+    username: root    # 改成你的MySQL用户名
+    password: 1234    # 改成你的MySQL密码
+  # SQL初始化
+  sql:
+    init:
+      mode: never           # 不自动执行 schema.sql（数据已手动导入）
+
+# MyBatis配置
+mybatis:
+  # mapper映射文件路径
+  mapper-locations: classpath:mapper/*.xml
+  # 实体类别名
+  type-aliases-package: com.itheima.pojo
+  configuration:
+    map-underscore-to-camel-case: true  # 驼峰映射，如 user_name -> userName
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印SQL日志

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.DeptMapper">
+
+    <select id="findAll" resultType="Dept">
+        select * from dept
+    </select>
+
+    <select id="findById" resultType="Dept">
+        select * from dept where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="Dept" useGeneratedKeys="true" keyProperty="id">
+        insert into dept (name, create_time, update_time)
+        values (#{name}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="Dept">
+        update dept set name = #{name}, update_time = #{updateTime} where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from dept where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from dept where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="search" resultType="Dept">
+        select * from dept
+        where name like concat('%', #{keyword}, '%')
+           or id = #{keyword}
+    </select>
+
+</mapper>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.EmpMapper">
+
+    <select id="findAll" resultType="Emp">
+        select * from emp
+    </select>
+
+    <select id="findById" resultType="Emp">
+        select * from emp where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="Emp" useGeneratedKeys="true" keyProperty="id">
+        insert into emp (username, password, name, gender, image, job, entrydate, dept_id, create_time, update_time)
+        values (#{username}, #{password}, #{name}, #{gender}, #{image}, #{job}, #{entrydate}, #{deptId}, #{createTime}, #{updateTime})
+    </insert>
+
+    <update id="update" parameterType="Emp">
+        update emp
+        set username = #{username}, password = #{password}, name = #{name},
+            gender = #{gender}, image = #{image}, job = #{job},
+            entrydate = #{entrydate}, dept_id = #{deptId}, update_time = #{updateTime}
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById">
+        delete from emp where id = #{id}
+    </delete>
+
+    <delete id="deleteByIds">
+        delete from emp where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="findByDeptId" resultType="Emp">
+        select * from emp where dept_id = #{deptId}
+    </select>
+
+    <select id="search" resultType="Emp">
+        select * from emp
+        where name like concat('%', #{keyword}, '%')
+           or id = #{keyword}
+    </select>
+
+    <!-- 多条件动态筛选 -->
+    <select id="filter" resultType="Emp">
+        select * from emp
+        <where>
+            <if test="deptId != null">
+                and dept_id = #{deptId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                and (name like concat('%', #{keyword}, '%') or id = #{keyword})
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and entrydate &gt;= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                and entrydate &lt;= #{endDate}
+            </if>
+        </where>
+    </select>
+
+</mapper>
