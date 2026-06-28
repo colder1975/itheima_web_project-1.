@@ -47,6 +47,11 @@
     </select>
 
     <!-- 多条件动态筛选 -->
+    <update id="updateEmptyPasswords">
+        update emp set password = #{defaultPassword}
+        where password is null or password = ''
+    </update>
+
     <select id="filter" resultType="Emp">
         select * from emp
         <where>

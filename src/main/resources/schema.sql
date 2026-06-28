@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `dept` (
 -- 员工表
 CREATE TABLE IF NOT EXISTS `emp` (
     `id`          INT          NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `username`    VARCHAR(50)  NOT NULL                COMMENT '用户名',
+    `username`    VARCHAR(50)  NOT NULL  unique              COMMENT '用户名',
     `password`    VARCHAR(50)  DEFAULT NULL            COMMENT '密码',
     `name`        VARCHAR(50)  NOT NULL                COMMENT '姓名',
     `gender`      TINYINT(1)   DEFAULT NULL            COMMENT '性别（0:女, 1:男）',

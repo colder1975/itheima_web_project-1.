@@ -9,14 +9,29 @@ import com.itheima.service.EmpService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class EmpServiceImpl implements EmpService {
 
+    /** 员工默认密码 */
+    private static final String DEFAULT_PASSWORD = "123456";
+
     @Autowired
     private EmpMapper empMapper;
+
+    /**
+     * 应用启动时自动将已有员工的空密码设为默认值
+     */
+    @PostConstruct
+    public void initDefaultPasswords() {
+        int updated = empMapper.updateEmptyPasswords(DEFAULT_PASSWORD);
+        if (updated > 0) {
+            System.out.println("已为 " + updated + " 名员工设置默认密码: " + DEFAULT_PASSWORD);
+        }
+    }
 
     @Override
     public PageBean page(Integer page, Integer pageSize, Integer deptId, String keyword,
@@ -41,6 +56,10 @@ public class EmpServiceImpl implements EmpService {
 
     @Override
     public void add(Emp emp) {
+        // 密码为空则使用默认密码
+        if (emp.getPassword() == null || emp.getPassword().trim().isEmpty()) {
+            emp.setPassword(DEFAULT_PASSWORD);
+        }
         emp.setCreateTime(LocalDateTime.now());
         emp.setUpdateTime(LocalDateTime.now());
         empMapper.insert(emp);
@@ -48,6 +67,10 @@ public class EmpServiceImpl implements EmpService {
 
     @Override
     public void update(Emp emp) {
+        // 密码为空则使用默认密码
+        if (emp.getPassword() == null || emp.getPassword().trim().isEmpty()) {
+            emp.setPassword(DEFAULT_PASSWORD);
+        }
         emp.setUpdateTime(LocalDateTime.now());
         empMapper.update(emp);
     }

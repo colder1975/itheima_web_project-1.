@@ -2,7 +2,8 @@ package com.itheima.utils;
 
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
-import org.springframework.beans.factory.annotation.Value;
+import com.itheima.pojo.AliOssProperties;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -16,17 +17,8 @@ import java.util.UUID;
 @Component
 public class AliOSSUtils {
 
-    @Value("${aliyun.oss.endpoint}")
-    private String endpoint;
-
-    @Value("${aliyun.oss.access-key-id}")
-    private String accessKeyId;
-
-    @Value("${aliyun.oss.access-key-secret}")
-    private String accessKeySecret;
-
-    @Value("${aliyun.oss.bucket-name}")
-    private String bucketName;
+    @Autowired
+    private AliOssProperties ossProperties;
 
     /**
      * 上传文件到阿里云OSS
@@ -45,11 +37,14 @@ public class AliOSSUtils {
         String objectName = "images/" + UUID.randomUUID().toString() + extension;
 
         // 3. 创建OSS客户端
-        OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+        OSS ossClient = new OSSClientBuilder().build(
+                ossProperties.getEndpoint(),
+                ossProperties.getAccessKeyId(),
+                ossProperties.getAccessKeySecret());
 
         try (InputStream inputStream = file.getInputStream()) {
             // 4. 上传文件
-            ossClient.putObject(bucketName, objectName, inputStream);
+            ossClient.putObject(ossProperties.getBucketName(), objectName, inputStream);
         } finally {
             // 5. 关闭OSS客户端
             ossClient.shutdown();
@@ -57,8 +52,8 @@ public class AliOSSUtils {
 
         // 6. 拼接文件访问URL并返回
         // URL格式: https://<bucketName>.<endpoint域名>/<objectName>
-        String host = endpoint.replace("https://", "").replace("http://", "");
-        String url = "https://" + bucketName + "." + host + "/" + objectName;
+        String host = ossProperties.getEndpoint().replace("https://", "").replace("http://", "");
+        String url = "https://" + ossProperties.getBucketName() + "." + host + "/" + objectName;
         return url;
     }
 }

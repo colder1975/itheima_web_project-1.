@@ -90,6 +90,22 @@
         .pager .pager-btns button:disabled { opacity: 0.4; cursor: default; }
         .pager .pager-btns .page-num { font-weight: 600; color: #1a73e8; padding: 0 4px; }
         .pager select { padding: 6px 10px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px; }
+        /* 图片上传 */
+        .upload-box { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .upload-box .upload-btn {
+            padding: 8px 16px; background: #e8f0fe; color: #1a73e8;
+            border: 1px dashed #1a73e8; border-radius: 4px; cursor: pointer; font-size: 13px;
+        }
+        .upload-box .upload-btn:hover { background: #d2e3fc; }
+        .upload-box .preview-img {
+            width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+            border: 2px solid #e8eaed; display: none;
+        }
+        .upload-box .upload-url {
+            font-size: 12px; color: #34a853; max-width: 200px; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap; display: none;
+        }
+        .upload-box .upload-loading { font-size: 13px; color: #5f6368; display: none; }
     </style>
 </head>
 <body>
@@ -183,7 +199,17 @@
         </div>
         <div class="form-group"><label>入职日期</label><input type="date" id="emp-entrydate"></div>
         <div class="form-group"><label>部门</label><select id="emp-dept"></select></div>
-        <div class="form-group"><label>头像URL</label><input type="text" id="emp-image" placeholder="可留空，如 https://xxx.com/avatar.jpg"></div>
+        <div class="form-group">
+            <label>头像</label>
+            <div class="upload-box">
+                <input type="hidden" id="emp-image">
+                <input type="file" id="emp-image-file" accept="image/*" onchange="handleImageSelect(this)" style="display:none">
+                <button type="button" class="upload-btn" onclick="document.getElementById('emp-image-file').click()">📁 选择照片</button>
+                <img class="preview-img" id="emp-image-preview" src="" alt="头像预览" onerror="this.style.display='none'">
+                <span class="upload-url" id="emp-image-url"></span>
+                <span class="upload-loading" id="emp-image-loading">⏳ 上传中...</span>
+            </div>
+        </div>
         <input type="hidden" id="emp-id">
         <div class="modal-actions">
             <button class="btn" onclick="closeEmpModal()" style="background:#e8eaed;">取消</button>
@@ -387,7 +413,7 @@
                     <div class="dl-item"><div class="dl-label">职位</div><div class="dl-value">${JOB_NAMES[emp.job]||'未知'}</div></div>
                     <div class="dl-item"><div class="dl-label">部门ID</div><div class="dl-value">${emp.deptId}</div></div>
                     <div class="dl-item"><div class="dl-label">入职日期</div><div class="dl-value">${emp.entrydate||'-'}</div></div>
-                    <div class="dl-item"><div class="dl-label">头像</div><div class="dl-value">${emp.image||'-'}</div></div>
+                    <div class="dl-item"><div class="dl-label">头像</div><div class="dl-value">${emp.image ? `<img src="${emp.image}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #e8eaed">` : '-'}</div></div>
                     <div class="dl-item"><div class="dl-label">创建时间</div><div class="dl-value">${(emp.createTime||'').replace('T',' ')}</div></div>
                     <div class="dl-item"><div class="dl-label">更新时间</div><div class="dl-value">${(emp.updateTime||'').replace('T',' ')}</div></div>
                 </div>
@@ -450,11 +476,49 @@
         catch (e) { toast('批量删除失败', 'error'); }
     }
 
+    // ====== 图片上传到OSS ======
+    async function handleImageSelect(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        // 显示上传中
+        document.getElementById('emp-image-loading').style.display = 'inline';
+        document.getElementById('emp-image-preview').style.display = 'none';
+        document.getElementById('emp-image-url').style.display = 'none';
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(API + '/upload', { method: 'POST', body: formData });
+            const json = await res.json();
+            if (json.code === 1) {
+                // 上传成功：存储URL + 显示预览 + 显示URL
+                document.getElementById('emp-image').value = json.data;
+                document.getElementById('emp-image-preview').src = json.data;
+                document.getElementById('emp-image-preview').style.display = 'inline-block';
+                document.getElementById('emp-image-url').textContent = '✅ ' + json.data;
+                document.getElementById('emp-image-url').style.display = 'inline';
+            } else {
+                toast('上传失败: ' + json.msg, 'error');
+            }
+        } catch (e) {
+            toast('上传失败: ' + e.message, 'error');
+        } finally {
+            document.getElementById('emp-image-loading').style.display = 'none';
+        }
+    }
+
     // ====== 员工 CRUD ======
     function openEmpModal() {
         document.getElementById('emp-modal-title').textContent = '新增员工';
         document.getElementById('emp-id').value = '';
-        ['emp-name','emp-username','emp-password','emp-image'].forEach(id => document.getElementById(id).value = '');
+        ['emp-name','emp-username','emp-password'].forEach(id => document.getElementById(id).value = '');
+        // 重置图片上传区域
+        document.getElementById('emp-image').value = '';
+        document.getElementById('emp-image-file').value = '';
+        document.getElementById('emp-image-preview').style.display = 'none';
+        document.getElementById('emp-image-url').style.display = 'none';
         document.getElementById('emp-entrydate').value = '';
         document.getElementById('emp-modal-overlay').classList.add('show');
         loadDeptFilter();
@@ -472,7 +536,18 @@
             document.getElementById('emp-job').value = emp.job;
             document.getElementById('emp-entrydate').value = emp.entrydate || '';
             document.getElementById('emp-dept').value = emp.deptId;
+            // 加载已有头像
             document.getElementById('emp-image').value = emp.image || '';
+            document.getElementById('emp-image-file').value = '';
+            if (emp.image) {
+                document.getElementById('emp-image-preview').src = emp.image;
+                document.getElementById('emp-image-preview').style.display = 'inline-block';
+                document.getElementById('emp-image-url').textContent = '✅ ' + emp.image;
+                document.getElementById('emp-image-url').style.display = 'inline';
+            } else {
+                document.getElementById('emp-image-preview').style.display = 'none';
+                document.getElementById('emp-image-url').style.display = 'none';
+            }
             document.getElementById('emp-modal-overlay').classList.add('show');
             await loadDeptFilter();
         } catch (e) { toast('加载员工信息失败', 'error'); }

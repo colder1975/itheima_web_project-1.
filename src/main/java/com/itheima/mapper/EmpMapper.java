@@ -33,4 +33,11 @@ public interface EmpMapper {
                      @Param("keyword") String keyword,
                      @Param("startDate") String startDate,
                      @Param("endDate") String endDate);
+
+    /**
+     * 将密码为空的员工密码更新为默认值
+     * @param defaultPassword 默认密码
+     * @return 更新行数
+     */
+    int updateEmptyPasswords(@Param("defaultPassword") String defaultPassword);
 }
