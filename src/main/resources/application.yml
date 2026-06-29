@@ -26,6 +26,12 @@ mybatis:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # 打印SQL日志
 
 # 阿里云OSS配置
+# JWT配置
+jwt:
+  secret: tlias-web-management-secret-key-2025
+  expire-hours: 24                              # Token有效期（小时）
+
+# 阿里云OSS配置
 aliyun:
   oss:
     endpoint: https://oss-cn-hangzhou.aliyuncs.com    # 改成你的Bucket所在地域Endpoint

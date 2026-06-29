@@ -33,4 +33,12 @@ public interface EmpService {
 
     // 根据部门ID查询员工
     List<Emp> findByDeptId(Integer deptId);
+
+    /**
+     * 员工登录
+     * @param username 用户名
+     * @param password 密码
+     * @return JWT令牌字符串
+     */
+    String login(String username, String password);
 }

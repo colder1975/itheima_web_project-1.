@@ -40,4 +40,11 @@ public interface EmpMapper {
      * @return 更新行数
      */
     int updateEmptyPasswords(@Param("defaultPassword") String defaultPassword);
+
+    /**
+     * 根据用户名查询员工
+     * @param username 用户名
+     * @return 员工实体，未找到返回 null
+     */
+    Emp findByUsername(@Param("username") String username);
 }

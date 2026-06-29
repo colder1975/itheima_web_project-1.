@@ -6,6 +6,7 @@ import com.itheima.mapper.EmpMapper;
 import com.itheima.pojo.Emp;
 import com.itheima.pojo.PageBean;
 import com.itheima.service.EmpService;
+import com.itheima.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,9 @@ public class EmpServiceImpl implements EmpService {
 
     @Autowired
     private EmpMapper empMapper;
+
+    @Autowired
+    private JwtUtils jwtUtils;
 
     /**
      * 应用启动时自动将已有员工的空密码设为默认值
@@ -88,5 +92,20 @@ public class EmpServiceImpl implements EmpService {
     @Override
     public List<Emp> findByDeptId(Integer deptId) {
         return empMapper.findByDeptId(deptId);
+    }
+
+    @Override
+    public String login(String username, String password) {
+        // 1. 根据用户名查询员工
+        Emp emp = empMapper.findByUsername(username);
+        if (emp == null) {
+            throw new RuntimeException("用户名或密码错误");
+        }
+        // 2. 校验密码（明文比对）
+        if (!emp.getPassword().equals(password)) {
+            throw new RuntimeException("用户名或密码错误");
+        }
+        // 3. 生成并返回JWT令牌
+        return jwtUtils.generateToken(emp);
     }
 }

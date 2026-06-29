@@ -16,4 +16,8 @@ target/
 Thumbs.db
 
 # Logs
+logs/
 *.log
+
+# Claude
+.claude/settings.local.json

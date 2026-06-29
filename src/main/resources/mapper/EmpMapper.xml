@@ -36,6 +36,10 @@
         </foreach>
     </delete>
 
+    <select id="findByUsername" resultType="Emp">
+        select * from emp where username = #{username}
+    </select>
+
     <select id="findByDeptId" resultType="Emp">
         select * from emp where dept_id = #{deptId}
     </select>
