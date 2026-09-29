@@ -27,7 +27,31 @@
       "Bash(powershell *)",
       "Bash(C:\\\\Users\\\\HP\\\\AppData\\\\Local\\\\Temp\\\\BNZ.6a3f579776c100\\\\nginx-1.22.0-tlias\\\\nginx.exe *)",
       "Bash(taskkill *)",
-      "Bash(mvn spring-boot:run -q)"
+      "Bash(mvn spring-boot:run -q)",
+      "Bash(wmic process *)",
+      "Bash(powershell -Command \"Get-Process nginx | Select-Object Path\")",
+      "Bash(/c/Users/HP/AppData/Local/Temp/BNZ.6a408e221998ea/nginx-1.22.0-tlias/nginx.exe *)",
+      "Bash(mvn compile *)",
+      "Bash(git push *)",
+      "Read(//d/nginx/**)",
+      "Read(//e/nginx/**)",
+      "Bash(cmd.exe /c \"where nginx\")",
+      "Read(//e/nginx-1.22.0/**)",
+      "Read(//d/nginx-1.22.0/**)",
+      "Bash(unzip -o nginx-1.22.0-tlias.zip -d nginx-1.22.0-tlias)",
+      "Bash(cp conf/nginx.conf conf/nginx.conf.bak)",
+      "Bash(cp \"E:/itheima_web_project/tlias-web-management/tlias-web-management/conf/nginx.conf\" conf/nginx.conf)",
+      "Bash(cp \"E:/itheima_web_project/tlias-web-management/tlias-web-management/html/index.html\" html/)",
+      "Bash(./nginx.exe -s stop)",
+      "Bash(./nginx.exe)",
+      "Bash(./nginx.exe -t)",
+      "Bash(mysql -u root -p -e \"ALTER TABLE tlias.dept ADD UNIQUE \\(name\\);\")",
+      "Bash(mysql -u root -p1234 tlias -e \"ALTER TABLE dept ADD UNIQUE \\(name\\); ALTER TABLE dept MODIFY create_time DATETIME NOT NULL COMMENT '创建时间'; UPDATE emp SET password = '123456' WHERE password IS NULL OR password = ''; ALTER TABLE emp MODIFY password VARCHAR\\(50\\) NOT NULL DEFAULT '123456' COMMENT '密码'; UPDATE emp SET create_time = NOW\\(\\) WHERE create_time IS NULL; ALTER TABLE emp MODIFY create_time DATETIME NOT NULL COMMENT '创建时间'; ALTER TABLE emp MODIFY job INT NOT NULL COMMENT '职位'; ALTER TABLE emp MODIFY entrydate DATE NOT NULL COMMENT '入职日期'; ALTER TABLE emp MODIFY dept_id INT NOT NULL COMMENT '部门ID';\")",
+      "Bash(mysql *)",
+      "Bash(cmd.exe /c \"start /B nginx.exe\")",
+      "WebSearch",
+      "Bash(tasklist //FI \"IMAGENAME eq nginx.exe\")",
+      "Bash(tasklist //FI \"PID eq 4\")"
     ]
   }
 }

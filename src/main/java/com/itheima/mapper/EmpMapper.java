@@ -47,4 +47,11 @@ public interface EmpMapper {
      * @return 员工实体，未找到返回 null
      */
     Emp findByUsername(@Param("username") String username);
+
+    /**
+     * 根据部门ID删除该部门下的所有员工
+     * @param deptId 部门ID
+     * @return 删除行数
+     */
+    int deleteByDeptId(@Param("deptId") Integer deptId);
 }

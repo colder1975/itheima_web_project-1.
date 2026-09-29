@@ -1,8 +1,8 @@
 -- 部门表
 CREATE TABLE IF NOT EXISTS `dept` (
     `id`          INT          NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `name`        VARCHAR(50)  NOT NULL                COMMENT '部门名称',
-    `create_time` DATETIME     DEFAULT NULL            COMMENT '创建时间',
+    `name`        VARCHAR(50)  NOT NULL UNIQUE         COMMENT '部门名称',
+    `create_time` DATETIME     NOT NULL                COMMENT '创建时间',
     `update_time` DATETIME     DEFAULT NULL            COMMENT '修改时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='部门表';
@@ -10,15 +10,15 @@ CREATE TABLE IF NOT EXISTS `dept` (
 -- 员工表
 CREATE TABLE IF NOT EXISTS `emp` (
     `id`          INT          NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-    `username`    VARCHAR(50)  NOT NULL  unique              COMMENT '用户名',
-    `password`    VARCHAR(50)  DEFAULT NULL            COMMENT '密码',
+    `username`    VARCHAR(50)  NOT NULL UNIQUE         COMMENT '用户名',
+    `password`    VARCHAR(50)  NOT NULL DEFAULT '123456' COMMENT '密码',
     `name`        VARCHAR(50)  NOT NULL                COMMENT '姓名',
     `gender`      TINYINT(1)   DEFAULT NULL            COMMENT '性别（0:女, 1:男）',
     `image`       VARCHAR(200) DEFAULT NULL            COMMENT '头像URL',
-    `job`         INT          DEFAULT NULL            COMMENT '职位（1:班主任, 2:讲师, 3:学工主管, 4:教研主管, 5:咨询师）',
-    `entrydate`   DATE         DEFAULT NULL            COMMENT '入职日期',
-    `dept_id`     INT          DEFAULT NULL            COMMENT '部门ID',
-    `create_time` DATETIME     DEFAULT NULL            COMMENT '创建时间',
+    `job`         INT          NOT NULL                COMMENT '职位（1:班主任, 2:讲师, 3:学工主管, 4:教研主管, 5:咨询师）',
+    `entrydate`   DATE         NOT NULL                COMMENT '入职日期',
+    `dept_id`     INT          NOT NULL                COMMENT '部门ID',
+    `create_time` DATETIME     NOT NULL                COMMENT '创建时间',
     `update_time` DATETIME     DEFAULT NULL            COMMENT '修改时间',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='员工表';

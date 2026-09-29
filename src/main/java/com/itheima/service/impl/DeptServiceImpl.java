@@ -3,11 +3,13 @@ package com.itheima.service.impl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.itheima.mapper.DeptMapper;
+import com.itheima.mapper.EmpMapper;
 import com.itheima.pojo.Dept;
 import com.itheima.pojo.PageBean;
 import com.itheima.service.DeptService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +19,9 @@ public class DeptServiceImpl implements DeptService {
 
     @Autowired
     private DeptMapper deptMapper;
+
+    @Autowired
+    private EmpMapper empMapper;
 
     @Override
     public PageBean page(Integer page, Integer pageSize) {
@@ -60,13 +65,19 @@ public class DeptServiceImpl implements DeptService {
         deptMapper.update(dept);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteById(Integer id) {
-        deptMapper.deleteById(id);
+        empMapper.deleteByDeptId(id);   // 先删该部门下的所有员工
+        deptMapper.deleteById(id);      // 再删部门
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void deleteByIds(List<Integer> ids) {
-        deptMapper.deleteByIds(ids);
+        for (Integer deptId : ids) {
+            empMapper.deleteByDeptId(deptId);   // 先删该部门下的所有员工
+        }
+        deptMapper.deleteByIds(ids);            // 再批量删部门
     }
 }

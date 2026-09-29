@@ -50,6 +50,11 @@
            or id = #{keyword}
     </select>
 
+    <!-- 根据部门ID删除该部门下所有员工 -->
+    <delete id="deleteByDeptId">
+        delete from emp where dept_id = #{deptId}
+    </delete>
+
     <!-- 多条件动态筛选 -->
     <update id="updateEmptyPasswords">
         update emp set password = #{defaultPassword}
