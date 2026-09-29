@@ -35,6 +35,6 @@ jwt:
 aliyun:
   oss:
     endpoint: https://oss-cn-hangzhou.aliyuncs.com    # 改成你的Bucket所在地域Endpoint
-    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}               # 改成你的AccessKey ID
-    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}          # 改成你的AccessKey Secret
+    access-key-id: ${ALIYUN_OSS_ACCESS_KEY_ID:}               # 通过环境变量注入 AccessKey ID
+    access-key-secret: ${ALIYUN_OSS_ACCESS_KEY_SECRET:}       # 通过环境变量注入 AccessKey Secret
     bucket-name: talis-web10                           # Bucket名称
